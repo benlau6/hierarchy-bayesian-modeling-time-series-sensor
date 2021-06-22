@@ -13,7 +13,7 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 
 class BayesModel(metaclass=abc.ABCMeta):
     
-    def __init__(self, y, t, dt, num_samples=1000, num_burnin=2000, threshold_t=24):
+    def __init__(self, y, t, dt, num_samples=1000, num_burnin=2000, threshold_t=7):
         self.model = pm.Model()
         self.y = y
         self.t = t
@@ -407,7 +407,7 @@ class SwitchPointDiscreteModel(BayesModel):
         with self.model:
             # switch, weight, time multiplier with coefficient
             switchpoint = pm.DiscreteUniform("switch", lower=self.threshold_t, upper=self.t[-1] - self.threshold_t, testval=self.t[-1]//2)
-            t_ = pm.math.switch(t<switchpoint, t, t-switchpoint)
+            t_ = pm.math.switch(self.t<switchpoint, self.t, self.t-switchpoint)
             
             # to be examine, for multiple change point
             #w1 = pm.math.sigmoid(2*(t-sp1))
@@ -417,18 +417,18 @@ class SwitchPointDiscreteModel(BayesModel):
             # intercept
             mu_1 = pm.Normal("mu_1", mu=early_p10, sigma=early_std)
             mu_2 = pm.Normal("mu_2", mu=late_p10, sigma=late_std)
-            mu_ = pm.Deterministic("y_mu", pm.math.switch(t<switchpoint, mu_1, mu_2))
+            mu_ = pm.Deterministic("y_mu", pm.math.switch(self.t<switchpoint, mu_1, mu_2))
 
             # coefficient
             beta_1 = pm.HalfNormal('beta_1', sigma=early_coeff_std)
             beta_2 = pm.HalfCauchy('beta_2', beta=late_coeff_std)
-            beta_ = pm.Deterministic("y_beta", pm.math.switch(t<switchpoint, beta_1, beta_2))
+            beta_ = pm.Deterministic("y_beta", pm.math.switch(self.t<switchpoint, beta_1, beta_2))
 
             # error term
             sigma_sensor = pm.HalfNormal("sigma_sensor", sigma=2*sensor_std, testval=sensor_mu)
             sigma_1 = pm.HalfNormal("sigma_1", sigma=early_std*2, testval=early_std)
             sigma_2 = pm.HalfCauchy("sigma_2", beta=late_std*2, testval=late_std)
-            sigma_ = pm.math.switch(t<switchpoint, sigma_1+sigma_sensor, sigma_2+sigma_sensor)
+            sigma_ = pm.math.switch(self.t<switchpoint, sigma_1+sigma_sensor, sigma_2+sigma_sensor)
 
             nu = pm.Gamma('nu', alpha=2, beta=0.1)
 
