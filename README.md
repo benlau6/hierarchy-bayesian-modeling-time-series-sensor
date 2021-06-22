@@ -6,4 +6,5 @@ conda env create -f pm.yaml
 ```
 
 ## Model
-sensor_modeling.ipynb
+1. hierarchy bayesian student-t model for regression and change point detection
+2. gaussian process for regression
