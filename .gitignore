@@ -76,6 +76,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*/.ipynb_checkpoints/*
 
 # IPython
 profile_default/
@@ -131,4 +132,4 @@ dmypy.json
 # custom
 config.ini
 data/
-private*/
+private*
