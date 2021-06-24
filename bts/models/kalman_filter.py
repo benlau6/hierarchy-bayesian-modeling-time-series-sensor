@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from ..utils import add_subplot, gaussian
+from ..utils import add_subplot
+from .data import gaussian
 
 class KalmanFilterChangePointModel():
     
