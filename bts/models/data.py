@@ -3,6 +3,7 @@ import boto3
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+from ..utils import add_subplot
 
 class Data():
     
@@ -83,3 +84,39 @@ class Data():
         df = df.set_index('datetime')
         return df
     
+class Sample():
+    
+    def __init__(self, N=50, sp_loc=0.2, mu_1=1440, mu_2=1445, beta_1=0.03, beta_2=0.1, sigma_1=0.3, sigma_2=0.6):
+        self.N = N
+        self.sp_loc = sp_loc
+        self.mu_1 = mu_1
+        self.mu_2 = mu_2
+        self.beta_1 = beta_1, 
+        self.beta_2 = beta_2, 
+        self.sigma_1 = sigma_1, 
+        self.sigma_2 = sigma_2
+        self.generate()
+
+    def generate(self):
+        '''
+        sp_loc: switchpoint location
+        x_1 vs x_2: before vs after switchpoint
+        '''
+        sp = int(self.N*self.sp_loc)
+        t = np.arange(0, self.N)
+        eps_1 = np.random.normal(0, self.sigma_1, sp)
+        eps_2 = np.random.normal(0, self.sigma_2, self.N-sp)
+        y_1 = self.mu_1+self.beta_1*t[:sp] + eps_1
+        y_2 = self.mu_2+self.beta_2*(t[sp:]-sp) + eps_2
+        y = np.concatenate((y_1, y_2))
+        self.y = y
+        self.t = t
+                           
+    def plot(self, fig=None):   
+        if fig is None:
+            fig = plt.figure(figsize=(18, 1))
+        ax = add_subplot()
+        ax.scatter(x=self.t, y=self.y)
+        plt.ylabel('y')
+        plt.xlabel('time')
+        fig.tight_layout()        
