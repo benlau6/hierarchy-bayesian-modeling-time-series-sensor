@@ -6,11 +6,13 @@ import numpy as np
 from ..utils import add_subplot
 from collections import namedtuple
 
+
 gaussian = namedtuple('Gaussian', ['mean', 'var'])
 gaussian.__repr__ = lambda t: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(t[0], t[1])
 
 gaussian_linear = namedtuple('Gaussian', ['mu', 'beta', 'sigma'])
 gaussian_linear.__repr__ = lambda t: '𝒩(μ={:.3f}, β={:.3f}, 𝜎²={:.3f})'.format(t[0], t[1], t[2])
+
 
 class Data():
     
@@ -91,98 +93,7 @@ class Data():
         df = df.set_index('datetime')
         return df
     
-#class Sample():
-#    
-#    def __init__(self, N=50, sp_loc=0.2, mu_1=1440, mu_2=1445, beta_1=0.03, beta_2=0.1, sigma_1=0.3, sigma_2=0.6):
-#        self.N = N
-#        self.sp_loc = sp_loc
-#        self.left_glm = gaussian_linear(mu_1, beta_1, sigma_1)
-#        self.right_glm = gaussian_linear(mu_2, beta_2, sigma_2)
-#        self.generate()
-#
-#    def generate(self):
-#        '''
-#        sp_loc: switchpoint location
-#        x_1 vs x_2: before vs after switchpoint
-#        '''
-#        sp = int(self.N*self.sp_loc)
-#        t = np.arange(0, self.N)
-#        eps_1 = np.random.normal(0, self.left_glm.sigma, sp)
-#        eps_2 = np.random.normal(0, self.right_glm.sigma, self.N-sp)
-#        y_1 = self.left_glm.mu+self.left_glm.beta*t[:sp] + eps_1
-#        y_2 = self.right_glm.mu+self.right_glm.beta*(t[sp:]-sp) + eps_2
-#        y = np.concatenate((y_1, y_2))
-#        self.y = y
-#        self.t = t
-#                           
-#    def plot(self, fig=None):   
-#        if fig is None:
-#            fig = plt.figure(figsize=(18, 1))
-#        ax = add_subplot()
-#        ax.scatter(x=self.t, y=self.y)
-#        plt.ylabel('y')
-#        plt.xlabel('time')
-#        fig.tight_layout()        
 
-#class Sample():
-#    
-#    def __init__(self, N=50, mu=1440, beta=0.03, sigma=0.3):
-#        self.N = N
-#        self.glm = gaussian_linear(mu, beta, sigma)
-#        #self.definition()
-#
-#    def definition(self):
-#        t = np.arange(0, self.N)
-#        eps = np.random.normal(0, self.glm.sigma, self.N)
-#        y = self.glm.mu + self.glm.beta*t + eps
-#        self.y = y
-#        self.t = t
-#        return np.array([y, t])
-#        
-#    def __add__(self, other):
-#        return AddSample(self, other)
-#                           
-#    def plot(self, fig=None):   
-#        
-#        if fig is None:
-#            fig = plt.figure(figsize=(18, 1))
-#        ax = add_subplot()
-#        ax.scatter(x=self.t, y=self.y)
-#        plt.ylabel('y')
-#        plt.xlabel('time')
-#        fig.tight_layout() 
-#
-#class AddSample(Sample):
-#    def __init__(self, left, right):
-#        self.left = left
-#        self.right = right
-#        super().__init__()
-#        self.definition()
-#
-#    def definition(self, *args, **kwargs):
-#        left = self.left.definition(*args, **kwargs)
-#        right = self.right.definition(*args, **kwargs)
-#        
-#        y = np.concatenate([left[0], right[0]])
-#        t = np.concatenate([left[1], right[1]+left[1][-1]+1])
-#        self.y = y
-#        self.t = t
-#        
-#        return np.array([y, t])
-#
-#    def plot(self, *args, **kwargs):
-#        left = self.left.plot(*args, **kwargs)
-#        right = self.right.plot(*args, **kwargs)
-#        return left + right
-#
-#    def __repr__(self):
-#        return (
-#            f"AddSample( \n"
-#            f"    left={self.left} \n"
-#            f"    right={self.right} \n"
-#            f")"
-#        )
-    
 class Sample():
     
     def __init__(self, N=50, mu=1440, beta=0.03, sigma=0.3):
