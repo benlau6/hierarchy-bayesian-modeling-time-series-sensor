@@ -7,11 +7,13 @@ from ..utils import add_subplot
 from collections import namedtuple
 
 
-gaussian = namedtuple('Gaussian', ['mean', 'var'])
-gaussian.__repr__ = lambda t: '𝒩(μ={:.3f}, 𝜎²={:.3f})'.format(t[0], t[1])
+gaussian = namedtuple('Gaussian', ['mu', 'sigma'])
+gaussian.__repr__ = lambda t: 'N(μ={:.3f}, σ={:.3f})'.format(t[0], t[1])
 
 gaussian_linear = namedtuple('Gaussian', ['mu', 'beta', 'sigma'])
-gaussian_linear.__repr__ = lambda t: '𝒩(μ={:.3f}, β={:.3f}, 𝜎²={:.3f})'.format(t[0], t[1], t[2])
+gaussian_linear.__repr__ = lambda t: 'N(μ={:.3f}, β={:.3f}, σ={:.3f})'.format(t[0], t[1], t[2]) #'𝒩'
+
+track_point = namedtuple('TrackPoint', ['linename', 'direction', 'chainage'])
 
 
 class Data():
@@ -70,12 +72,11 @@ class Data():
         self.df_processed = self.df_processed.drop_duplicates('datetime').sort_values(by='datetime')
         #self.df_processed['gauge'] = self.df_processed['gauge'].interpolate(limit=2)
         
-    def scatter_plot_chainage_hue(self, chainage=2.1, direction='Down'):            
-        mask1 = self.df_processed['Aligned Chainage'] == chainage
-        mask2 = self.df_processed['subtrackname'].str.contains(direction)
-        df = self.df_processed[mask1&mask2]
+    def scatter_plot_chainage_hue(self, linename='EAL', direction='Down', chainage=2.1):            
+        df = self.mask_df(linename, direction, chainage)
+        
         fig, axes = plt.subplots(2,3, figsize=(16, 8))
-        fig.suptitle(f'chainage={chainage}, direction={direction}')
+        fig.suptitle(f'linename={linename}, direction={direction}, chainage={chainage}')
         sns.scatterplot(data=df, hue='km', x='datetime', y='acc', ax=axes[0, 0])#.set_title('acc')
         sns.scatterplot(data=df, hue='km', x='datetime', y='bolaccy', ax=axes[0, 1])#.set_title('bolaccy')
         sns.scatterplot(data=df, hue='km', x='datetime', y='gauge', ax=axes[0, 2])#.set_title('gauge')
@@ -84,11 +85,17 @@ class Data():
         sns.scatterplot(data=df, hue='vehicle', x='datetime', y='gauge', ax=axes[1, 2])#.set_title('gauge')
         fig.autofmt_xdate()
         plt.show()
-            
-    def sub_df(self, chainage=2.1, direction='Down', target='gauge'):
-        mask1 = self.df_processed['Aligned Chainage'] == chainage
+        
+    def mask_df(self, linename='EAL', direction='Down', chainage=2.1):
+        mask1 = self.df_processed['linename'] == linename
         mask2 = self.df_processed['subtrackname'].str.contains(direction)
-        df = self.df_processed[mask1&mask2]
+        mask3 = self.df_processed['Aligned Chainage'] == chainage
+        
+        df = self.df_processed[mask1&mask2&mask3]
+        return df
+            
+    def sub_df(self, linename='EAL', direction='Down', chainage=2.1, target='gauge'):
+        df = self.mask_df(linename, direction, chainage)
         df = df[['datetime', target]]
         df = df.set_index('datetime')
         return df
@@ -108,6 +115,17 @@ class Sample():
         self.y = y
         self.t = t
         
+    @property
+    def dt(self, start_time='2021-06-01', unit='hour'):
+        '''
+        t: numpy arr of time step
+        unit: unit time step
+        start_time: datetime at time 0
+        '''
+        start = pd.to_datetime(start_time)
+        dt = start + pd.TimedeltaIndex(self.t, unit=unit) 
+        return dt
+        
     def __add__(self, other):
         return AddSample(self, other)
                            
@@ -124,7 +142,9 @@ class Sample():
     def __repr__(self):
         return f'{self.glm} with N={self.N}'
 
+    
 class AddSample(Sample):
+    
     def __init__(self, left, right):
         self.left = left
         self.right = right
