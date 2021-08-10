@@ -14,3 +14,7 @@ python -m ipykernel install --user --name=pm
 ## Model
 1. hierarchy bayesian student-t model for regression and change point detection
 2. gaussian process for regression
+
+## License
+
+This project is licensed under the terms of the MIT license.
