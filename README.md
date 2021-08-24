@@ -2,12 +2,8 @@
 
 ## Environment create
 ```
-conda env create -f pm.yaml
-```
-or alternatively, run
-```
-conda create -c msys2 -c conda-forge -n pm python=3.8 mkl-service libpython m2w64-toolchain statsmodels pandas s3fs seaborn boto3 fsspec ipykernel
-pip install pymc3 pyarrow
+conda create -c msys2 -c conda-forge -n pm python=3.8 libpython mkl-service m2w64-toolchain numba python-graphviz scipy ipykernel
+pip install pymc3 pydot-ng
 python -m ipykernel install --user --name=pm
 ```
 

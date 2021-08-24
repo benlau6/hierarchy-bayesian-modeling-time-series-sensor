@@ -184,8 +184,6 @@ class BaseLineModel(BayesModel):
             ax.set_title("Continous Posterior predictive checks")
             ax.legend(ncol=2, fontsize=10)
             plt.show()   
-            
-    def detect_outliers()
     
     
 class SwitchPointBasicModel(BayesModel):
